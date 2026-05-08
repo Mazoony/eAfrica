@@ -25,6 +25,7 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   loading: boolean;
+  error: string | null;
   signOut: () => Promise<void>;
   signIn: (credentials: SignInWithPasswordCredentials) => Promise<void>;
   signUp: (credentials: SignInWithPasswordCredentials) => Promise<void>;
@@ -37,10 +38,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const supabase = useMemo(() => createClient(), []); // Stable client instance
+  const supabase = useMemo(() => {
+    try {
+      return createClient();
+    } catch (e: any) {
+      console.error("Failed to create Supabase client:", e.message);
+      setError("Failed to initialize authentication. Please check your Supabase configuration.");
+      setLoading(false);
+      return null;
+    }
+  }, []);
 
   const createFallbackProfile = async (userId: string) => {
+    if (!supabase) return null;
     const { error } = await supabase.from('profiles').insert({ id: userId });
     if (error) {
       console.error('Error creating fallback profile row:', error.message);
@@ -59,6 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const fetchProfileData = async (userId: string, createIfMissing = false) => {
+    if (!supabase) return null;
     const columns = ['id', 'username', 'full_name', 'avatar_url', 'bio', 'created_at', 'updated_at'];
 
     while (columns.length > 0) {
@@ -85,7 +98,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return null;
       }
 
-      const missingColumn = missingMatch[1].replace(/['"]+/g, '').trim();
+      const missingColumn = missingMatch[1].replace(/['\"]+/g, '').trim();
       if (!columns.includes(missingColumn)) {
         console.error('Error fetching profile:', error.message);
         return null;
@@ -99,8 +112,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    if (!supabase) {
+      return;
+    }
+
     let mounted = true;
     let authSubscription: any;
+    const loadingTimeout = setTimeout(() => {
+        if (loading) {
+            console.warn("Authentication timeout");
+            setError("Authentication timed out. Please check your network connection and Supabase configuration.");
+            setLoading(false);
+        }
+    }, 10000); // 10 second timeout
 
     const fetchSessionAndProfile = async () => {
       try {
@@ -118,11 +142,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
           setUser(null);
         }
-      } catch (error) {
-        console.error('Error in fetchSessionAndProfile:', error);
-        if (mounted) setUser(null);
+      } catch (error: any) {
+        console.error('Error in fetchSessionAndProfile:', error.message);
+        if (mounted) {
+            setUser(null);
+            setError("Failed to fetch user session. Please try again.");
+        }
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+            setLoading(false);
+            clearTimeout(loadingTimeout);
+        }
       }
     };
 
@@ -146,15 +176,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         setLoading(false);
+        clearTimeout(loadingTimeout);
       });
 
       authSubscription = data?.subscription;
-    } catch (error) {
-      console.warn('Failed to subscribe to auth state changes:', error);
+    } catch (error: any) {
+      console.warn('Failed to subscribe to auth state changes:', error.message);
     }
 
     return () => {
       mounted = false;
+      clearTimeout(loadingTimeout);
       if (authSubscription?.unsubscribe) {
         authSubscription.unsubscribe();
       }
@@ -162,11 +194,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [router, supabase]);
 
   const signOut = async () => {
+    if (!supabase) return;
     await supabase.auth.signOut();
     router.push('/');
   };
 
   const signIn = async (credentials: SignInWithPasswordCredentials) => {
+    if (!supabase) throw new Error("Authentication service not available.");
     const { error } = await supabase.auth.signInWithPassword(credentials);
     if (error) {
       throw error;
@@ -174,6 +208,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signUp = async (credentials: SignInWithPasswordCredentials) => {
+    if (!supabase) throw new Error("Authentication service not available.");
     const { error } = await supabase.auth.signUp(credentials);
     if (error) {
       throw error;
@@ -181,6 +216,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signInWithGoogle = async () => {
+    if (!supabase) throw new Error("Authentication service not available.");
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -193,7 +229,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, loading, signOut, signIn, signUp, signInWithGoogle }}>
+    <AuthContext.Provider value={{ session, user, loading, error, signOut, signIn, signUp, signInWithGoogle }}>
       {children}
     </AuthContext.Provider>
   );

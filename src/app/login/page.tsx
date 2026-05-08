@@ -10,10 +10,10 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-  const { user, loading, signIn, signInWithGoogle } = useAuth();
+  const { user, loading, error: authError, signIn, signInWithGoogle } = useAuth();
 
   useEffect(() => {
     if (user) {
@@ -24,12 +24,12 @@ export default function Login() {
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setError(null);
+    setFormError(null);
     try {
       await signIn({ email, password });
       // Redirect is handled by the useEffect above
     } catch (err: any) {
-      setError(err.message);
+      setFormError(err.message);
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -38,12 +38,12 @@ export default function Login() {
 
   const handleGoogleSignIn = async () => {
     setIsSubmitting(true);
-    setError(null);
+    setFormError(null);
     try {
       await signInWithGoogle();
       // Redirect is handled by the useEffect above
     } catch (err: any) {
-      setError(err.message);
+      setFormError(err.message);
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -51,13 +51,19 @@ export default function Login() {
   }
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+            <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-50">Loading...</h1>
+            {authError && <p className="mt-4 text-sm text-red-600">{authError}</p>}
+        </div>
+    );
   }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="w-full max-w-md px-8 py-10 bg-white rounded-lg shadow-md dark:bg-gray-800">
         <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-50">Log In to eSchool</h1>
+        {authError && <p className="mt-4 text-center text-sm text-red-600">{authError}</p>}
         <div className="mt-8">
           <button
             onClick={handleGoogleSignIn}
@@ -108,7 +114,7 @@ export default function Login() {
               {isSubmitting ? 'Logging in...' : 'Log In'}
             </button>
           </form>
-        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+        {formError && <p className="mt-4 text-sm text-red-600">{formError}</p>}
         <p className="mt-4 text-sm text-center text-gray-500 dark:text-gray-400">
           Don't have an account?{" "}
           <Link href="/register" className="font-medium text-blue-600 hover:underline">
