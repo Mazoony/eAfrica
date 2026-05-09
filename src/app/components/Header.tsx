@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { useAuth } from '../AuthContext';
 import { User } from '../types';
 import Notifications from './Notifications';
-import SubNav from './SubNav'; // Import the SubNav component
 import { 
   HomeIcon, 
   BookOpenIcon,
@@ -90,7 +89,6 @@ export default function Header() {
           </div>
         )}
       </div>
-      {!user && <SubNav />} {/* Conditionally render the SubNav component */}
     </header>
   );
 }
