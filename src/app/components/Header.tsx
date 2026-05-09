@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useAuth } from '../AuthContext';
 import { User } from '../types';
 import Notifications from './Notifications';
+import SubNav from './SubNav'; // Import the SubNav component
 import { 
   HomeIcon, 
   BookOpenIcon,
@@ -11,7 +12,8 @@ import {
   UserCircleIcon, 
   PlusIcon, 
   ChatBubbleLeftEllipsisIcon,
-  CogIcon
+  CogIcon,
+  ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/solid';
 
 export default function Header() {
@@ -48,6 +50,9 @@ export default function Header() {
                <Link href="/settings" className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
                 <CogIcon className="h-7 w-7" />
               </Link>
+              <button onClick={handleLogout} className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
+                <ArrowLeftOnRectangleIcon className="h-7 w-7" />
+              </button>
             </nav>
 
             <div className="flex items-center space-x-2 sm:space-x-4">
@@ -78,13 +83,14 @@ export default function Header() {
             </Link>
             <Link
               href="/register"
-              className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+              className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px.tsx-4 rounded"
             >
               Sign Up
             </Link>
           </div>
         )}
       </div>
+      {!user && <SubNav />} {/* Conditionally render the SubNav component */}
     </header>
   );
 }
