@@ -25,14 +25,16 @@ export default function Header() {
     <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center p-2 sm:p-4">
         <div className="flex items-center space-x-2 sm:space-x-4">
-          <Link href="/" className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-            eSchool
-          </Link>
+          {!user && (
+            <Link href="/" className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              eSchool
+            </Link>
+          )}
         </div>
 
         {user ? (
           <>
-            <nav className="hidden md:flex flex-grow justify-center items-center space-x-6 sm:space-x-10">
+            <nav className="flex flex-grow justify-center items-center space-x-6 sm:space-x-10">
               <Link href="/social" className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
                 <HomeIcon className="h-7 w-7" />
               </Link>
