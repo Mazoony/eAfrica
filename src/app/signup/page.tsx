@@ -43,8 +43,7 @@ export default function SignUpPage() {
         // Optional: Here you might want to delete the created user if the profile creation fails
         // await supabase.auth.api.deleteUser(authData.user.id);
       } else {
-        alert('Sign up successful! Please check your email to confirm your account, then log in.');
-        router.push('/login');
+        router.push('/social');
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
