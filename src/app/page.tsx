@@ -45,7 +45,7 @@ export default function LandingPage() {
                 eSchool is a modern social platform connecting students and educators. Share ideas, collaborate on projects, and build your community.
                 </p>
                 <div className="mt-8 flex justify-center gap-4">
-                    <Link href="/signup" className="inline-block px-8 py-3 rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg transform hover:scale-105 transition-all duration-300">
+                    <Link href="/register" className="inline-block px-8 py-3 rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-lg transform hover:scale-105 transition-all duration-300">
                         Get Started for Free
                     </Link>
                     <Link href="/login" className="inline-block px-8 py-3 rounded-lg text-blue-600 dark:text-blue-400 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 shadow-lg transform hover:scale-105 transition-all duration-300">

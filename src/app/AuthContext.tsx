@@ -26,6 +26,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: string | null;
+  toastMessage: string | null;
   signOut: () => Promise<void>;
   signIn: (credentials: SignInWithPasswordCredentials) => Promise<void>;
   signUp: (credentials: SignInWithPasswordCredentials) => Promise<void>;
@@ -39,6 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const router = useRouter();
   const supabase = useMemo(() => {
     try {
@@ -193,9 +195,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [router, supabase]);
 
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    window.setTimeout(() => setToastMessage(null), 3000);
+  };
+
   const signOut = async () => {
     if (!supabase) return;
     await supabase.auth.signOut();
+    showToast('Signed out successfully');
     router.push('/');
   };
 
@@ -229,7 +237,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, loading, error, signOut, signIn, signUp, signInWithGoogle }}>
+    <AuthContext.Provider value={{ session, user, loading, error, toastMessage, signOut, signIn, signUp, signInWithGoogle }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,16 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { supabase } from '../supabase';
 import { HomeIcon, BellIcon, UserCircleIcon, CogIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../AuthContext';
 import Image from 'next/image';
 
 export default function LeftSidebar() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
 
   const handleLogout = async () => {
-    await supabase().auth.signOut();
+    await signOut();
   };
 
   const placeholderAvatar = '/user.svg';

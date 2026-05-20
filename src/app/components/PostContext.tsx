@@ -73,13 +73,13 @@ export const PostProvider = ({
       .select(
         `
         *,
-        author:profiles!inner(*),
+        author:profiles!posts_user_id_fkey(*),
         likes(user_id),
         comments!post_id(
           *,
-          commenter:profiles!inner(*),
+          commenter:profiles!user_id(*),
           comment_likes(user_id),
-          replies:comments!parent_id(*, commenter:profiles(*))
+          replies:comments!parent_id(*, commenter:profiles!user_id(*))
         )
       `,
       )
@@ -156,7 +156,7 @@ export const PostProvider = ({
         .from("comments")
         .insert({ post_id: post.id, user_id: user.id, content })
         .select(
-          "*, commenter:profiles!inner(*), comment_likes(user_id), replies:comments!parent_id(*, commenter:profiles!inner(*))",
+          "*, commenter:profiles!user_id(*), comment_likes(user_id), replies:comments!parent_id(*, commenter:profiles!user_id(*))",
         )
         .single();
 

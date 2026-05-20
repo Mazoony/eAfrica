@@ -16,7 +16,7 @@ import {
 } from '@heroicons/react/24/solid';
 
 export default function Header() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, toastMessage } = useAuth();
 
   const handleLogout = async () => {
     await signOut();
@@ -24,16 +24,22 @@ export default function Header() {
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
-      <div className="container mx-auto flex justify-between items-center p-2 sm:p-4">
-        <div className="flex items-center space-x-2 sm:space-x-4">
-          {!user && (
-            <Link href="/" className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              eSchool
-            </Link>
-          )}
-        </div>
+      <div className="container mx-auto flex flex-col items-center p-2 sm:p-4">
+        {toastMessage && (
+          <div className="w-full mb-3 px-4 py-2 rounded-lg bg-green-500 text-white text-sm text-center shadow-md">
+            {toastMessage}
+          </div>
+        )}
+        <div className="flex justify-between items-center w-full">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            {!user && (
+              <Link href="/" className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                eSchool
+              </Link>
+            )}
+          </div>
 
-        {user ? (
+          {user ? (
           <>
             <nav className="flex flex-grow justify-center items-center space-x-6 sm:space-x-10">
               <Link href="/social" className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400">
@@ -82,13 +88,14 @@ export default function Header() {
             </Link>
             <Link
               href="/register"
-              className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px.tsx-4 rounded"
+              className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
             >
               Sign Up
             </Link>
           </div>
         )}
       </div>
+    </div>
     </header>
   );
 }
